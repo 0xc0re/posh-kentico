@@ -35,10 +35,15 @@ namespace PoshKentico.Navigation.FileSystemItems
 
         #region Constructors
 
+        static RootFileSystemItem()
+        {
+            Instance = new RootFileSystemItem();
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RootFileSystemItem"/> class.
         /// </summary>
-        public RootFileSystemItem()
+        private RootFileSystemItem()
             : base(null)
         {
         }
@@ -60,6 +65,8 @@ namespace PoshKentico.Navigation.FileSystemItems
                 return this.children;
             }
         }
+
+        public static RootFileSystemItem Instance { get; set; }
 
         /// <inheritdoc/>
         public override bool IsContainer => true;

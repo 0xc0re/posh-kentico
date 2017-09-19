@@ -18,6 +18,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using CMS.FormEngine;
 using CMS.PortalEngine;
 
 namespace PoshKentico.Navigation.FileSystemItems
@@ -29,7 +31,9 @@ namespace PoshKentico.Navigation.FileSystemItems
     {
         #region Fields
 
+        private IEnumerable<IFileSystemItem> children;
         private string path;
+        private FormInfo formInfo;
         private WebPartInfo webPartInfo;
 
         #endregion
@@ -44,8 +48,9 @@ namespace PoshKentico.Navigation.FileSystemItems
         public WebPartFileSystemItem(WebPartInfo webPartInfo, IFileSystemItem parent)
             : base(parent)
         {
-            this.path = $"{parent.Path}\\{webPartInfo.WebPartName}";
+            this.path = $"{parent.Path.TrimEnd('\\')}\\{webPartInfo.WebPartName.TrimStart('\\')}";
             this.webPartInfo = webPartInfo;
+            this.formInfo = webPartInfo.GetWebPartFormInfo();
         }
 
         #endregion
@@ -53,10 +58,26 @@ namespace PoshKentico.Navigation.FileSystemItems
         #region Properties
 
         /// <inheritdoc/>
-        public override IEnumerable<IFileSystemItem> Children => null;
+        public override IEnumerable<IFileSystemItem> Children
+        {
+            get
+            {
+                if (this.children == null)
+                {
+                    var formFieldInfos = from i in this.formInfo?.ItemsList
+                                         where i is FormFieldInfo
+                                         select i as FormFieldInfo;
+
+                    this.children = (from f in formFieldInfos
+                                select new FormFieldFileSystemItem(f, this)).ToArray();
+                }
+
+                return this.children;
+            }
+        }
 
         /// <inheritdoc/>
-        public override bool IsContainer => false;
+        public override bool IsContainer => true;
 
         /// <inheritdoc/>
         public override object Item => this.webPartInfo;
@@ -108,7 +129,17 @@ namespace PoshKentico.Navigation.FileSystemItems
                 return this;
             }
 
-            return null;
+            var name = KenticoNavigationCmdletProvider.GetName(path);
+
+            var formFieldInfos = from i in this.formInfo?.ItemsList
+                                 where i is FormFieldInfo
+                                 select i as FormFieldInfo;
+
+            var formFieldInfo = from f in formFieldInfos
+                                where f.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)
+                                select new FormFieldFileSystemItem(f, this);
+
+            return formFieldInfo.FirstOrDefault();
         }
 
         /// <inheritdoc/>

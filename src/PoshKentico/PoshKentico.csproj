@@ -456,6 +456,7 @@
     <Compile Include="Navigation\DynamicParameters\NewWebPartCategoryDynamicParameter.cs" />
     <Compile Include="Navigation\DynamicParameters\NewWebPartDynamicParameter.cs" />
     <Compile Include="Navigation\FileSystemItems\AbstractFileSystemItem.cs" />
+    <Compile Include="Navigation\FileSystemItems\FormFieldFileSystemItem.cs" />
     <Compile Include="Navigation\FileSystemItems\RootFileSystemItem.cs" />
     <Compile Include="Navigation\FileSystemItems\WebPartCategoryFileSystemItem.cs" />
     <Compile Include="Navigation\FileSystemItems\IFileSystemItem.cs" />

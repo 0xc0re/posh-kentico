@@ -45,7 +45,7 @@ namespace PoshKentico.Navigation
 
         #region Fields
 
-        private IFileSystemItem rootItem = new RootFileSystemItem();
+        private IFileSystemItem rootItem = RootFileSystemItem.Instance;
 
         #endregion
 

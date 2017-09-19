@@ -153,12 +153,28 @@ namespace PoshKentico.Navigation.FileSystemItems
                                                  where c.CategoryPath.Equals(kenticoPath, StringComparison.InvariantCultureIgnoreCase)
                                                  select c).FirstOrDefault();
 
+                string webPartName;
+                if (parentWebPartCategoryInfo == null)
+                {
+                    // We are looking for a property of a web part.
+                    webPartName = KenticoNavigationCmdletProvider.GetName(parentDirectory);
+                    parentDirectory = KenticoNavigationCmdletProvider.GetDirectory(parentDirectory);
+
+                    parentWebPartCategoryInfo = (from c in categories
+                                                 where c.CategoryPath.Equals(kenticoPath, StringComparison.InvariantCultureIgnoreCase)
+                                                 select c).FirstOrDefault();
+                }
+                else
+                {
+                    // We are looking for a web part.
+                    webPartName = KenticoNavigationCmdletProvider.GetName(path);
+                }
+
                 if (parentWebPartCategoryInfo == null)
                 {
                     return null;
                 }
 
-                var webPartName = KenticoNavigationCmdletProvider.GetName(path);
                 var webPart = (from w in WebPartInfoProvider.GetAllWebParts(parentWebPartCategoryInfo.CategoryID)
                                where w.WebPartName.Equals(webPartName, StringComparison.InvariantCultureIgnoreCase)
                                select w).FirstOrDefault();
@@ -168,7 +184,8 @@ namespace PoshKentico.Navigation.FileSystemItems
                     return null;
                 }
 
-                return new WebPartFileSystemItem(webPart, this);
+                var parentFileSystemItem = RootFileSystemItem.Instance.FindPath(parentDirectory);
+                return new WebPartFileSystemItem(webPart, parentFileSystemItem).FindPath(path);
             }
         }
 
